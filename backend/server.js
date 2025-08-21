@@ -27,6 +27,45 @@ app.post('/posts', async (req, res) => {
     }
 });
 
+app.put('/posts/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    try {
+        const connection = await db;
+        const [result] = await connection.execute(
+            'UPDATE posts SET title = ?, content = ? WHERE id = ?',
+            [title, content, id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        res.status(200).json({ id, title, content });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+
+
+app.delete('/posts/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const connection = await db;
+        const [result] = await connection.execute(
+            'DELETE FROM posts WHERE id = ?',
+            [id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        res.status(200).json({ message: 'Post deleted' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
 
 app.get('/posts', async (req, res) => {
     try {
