@@ -8,6 +8,8 @@ const App = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [editId, setEditId] = useState(null);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   // fetch posts
   useEffect(() => {
@@ -33,17 +35,25 @@ const App = () => {
       // Add
       axios.post('http://localhost:5000/posts', postData)
         .then((res) => {
-          setpost([...posts, res.data]);
+          setpost([res.data, ...posts]);
           setTitle('');
           setContent('');
         });
     }
   };
 
-  // Delete post
+  // Show confirmation popup
+  const confirmDelete = (id) => {
+    setShowDelete(true);
+    setDeleteId(id);
+  };
+
+  // Delete post after confirmation
   const handleDelete = (id) => {
     axios.delete(`http://localhost:5000/posts/${id}`)
       .then(() => setpost(posts.filter(post => post.id !== id)));
+    setShowDelete(false);
+    setDeleteId(null);
   };
 
   // Start editing
@@ -87,7 +97,27 @@ const App = () => {
         )}
       </form>
       {/* Posts */}
-      <Postlist posts={posts} onDelete={handleDelete} onEdit={handleEdit} />
+      <Postlist posts={posts} onDelete={confirmDelete} onEdit={handleEdit} />
+      {/* Delete Confirmation Popup */}
+      {showDelete && (
+        <div className="fixed inset-0 flex items-center justify-center top-40  h-40 bg-opacity-80 z-50">
+          <div className="bg-gray-400 p-6 rounded shadow-lg text-center">
+            <p className="mb-4">Are you sure you want to delete this post?</p>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+              onClick={() => handleDelete(deleteId)}
+            >
+              Yes, Delete
+            </button>
+            <button
+              className="bg-gray-300 px-4 py-2 rounded"
+              onClick={() => { setShowDelete(false); setDeleteId(null); }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

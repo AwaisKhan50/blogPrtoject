@@ -19,14 +19,18 @@ app.post('/posts', async (req, res) => {
     const { title, content } = req.body;
     try {
         const connection = await db;
-        const [result] = await connection.execute('INSERT INTO posts (title, content) VALUES (?, ?)', [title, content]);
-        res.status(201).json({ id: result.insertId, title, content });
+        const [result] = await connection.execute(
+            'INSERT INTO posts (title, content) VALUES (?, ?)', [title, content]);
+        // Fetch the full post including created_at 
+        const [rows] = await connection.execute(
+            'SELECT * FROM posts WHERE id = ?', [result.insertId]
+        );
+        res.status(201).json(rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Database error' });
     }
 });
-
 app.put('/posts/:id', async (req, res) => {
     const { id } = req.params;
     const { title, content } = req.body;
@@ -70,8 +74,8 @@ app.delete('/posts/:id', async (req, res) => {
 app.get('/posts', async (req, res) => {
     try {
         const connection = await db;
-        const [rows] = await connection.execute('SELECT * FROM posts');
-        res.status(200).json(rows);
+const [rows] = await connection.execute('SELECT * FROM posts ORDER BY created_at DESC');
+res.status(200).json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Database error' });
