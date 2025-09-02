@@ -5,6 +5,7 @@ import './App.css';
 
 const App = () => {
   const [posts, setpost] = useState([]);
+  const [filter, setFilter] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [editId, setEditId] = useState(null);
@@ -63,9 +64,22 @@ const App = () => {
     setContent(post.content);
   };
 
+  // Filter posts by title
+  const filteredPosts = posts.filter(post =>
+    post.title.toLowerCase().includes(filter.toLowerCase())
+  );
+
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">📌 My Blog</h1>
+      {/* Filter Input */}
+      <input
+        type="text"
+        placeholder="Filter by title..."
+        value={filter}
+        onChange={e => setFilter(e.target.value)}
+        className="border p-2 w-full mb-4 rounded"
+      />
       {/* Form */}
       <form onSubmit={handleSubmit} className="mb-6">
         <input
@@ -97,7 +111,7 @@ const App = () => {
         )}
       </form>
       {/* Posts */}
-      <Postlist posts={posts} onDelete={confirmDelete} onEdit={handleEdit} />
+  <Postlist posts={filteredPosts} filter={filter} onDelete={confirmDelete} onEdit={handleEdit} />
       {/* Delete Confirmation Popup */}
       {showDelete && (
         <div className="fixed inset-0 flex items-center justify-center top-40  h-40 bg-opacity-80 z-50">
