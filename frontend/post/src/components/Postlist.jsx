@@ -1,22 +1,11 @@
 import React from 'react';
 
-const highlightText = (text, filter) => {
-  if (!filter) return text;
-  const regex = new RegExp(`(${filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  const parts = text.split(regex);
-  return parts.map((part, i) =>
-    regex.test(part)
-      ? <span key={i} style={{ backgroundColor: '#ffe066', color: '#222' }}>{part}</span>
-      : part
-  );
-};
-
-const Postlist = ({ posts = [], filter = '', onDelete, onEdit }) => {
+const Postlist = ({ posts = [], onDelete, onEdit }) => {
   return (
     <div>
       {posts.map(post => (
         <div key={post.id} className="border p-4 mb-2 rounded shadow">
-          <h2 className="font-bold">{highlightText(post.title, filter)}</h2>
+          <h2 className="font-bold">{post.title}</h2>
           <p>{post.content}</p>
           <small className="text-gray-500">
             {post.created_at && new Date(post.created_at).toLocaleString() }

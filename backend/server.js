@@ -74,8 +74,16 @@ app.delete('/posts/:id', async (req, res) => {
 app.get('/posts', async (req, res) => {
     try {
         const connection = await db;
-const [rows] = await connection.execute('SELECT * FROM posts ORDER BY created_at DESC');
-res.status(200).json(rows);
+        const { filter } = req.query;
+        let query = 'SELECT * FROM posts';
+        let params = [];
+        if (filter) {
+            query += ' WHERE title LIKE ?';
+            params.push(`%${filter}%`);
+        }
+        query += ' ORDER BY created_at DESC';
+        const [rows] = await connection.execute(query, params);
+        res.status(200).json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Database error' });

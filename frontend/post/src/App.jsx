@@ -12,12 +12,22 @@ const App = () => {
   const [showDelete, setShowDelete] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // fetch posts
+  // fetch posts (with filter) 
   useEffect(() => {
-    axios.get('http://localhost:5000/posts')
-      .then((res) => setpost(res.data))
-      .catch((error) => console.error('Error fetching posts:', error));
-  }, []);
+    const fetchPosts = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/posts',
+           {
+            
+          params: filter ? { filter } :null
+           });
+        setpost(res.data);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+    fetchPosts();
+  }, [filter]);
 
   // Add or update post
   const handleSubmit = (e) => {
@@ -64,11 +74,6 @@ const App = () => {
     setContent(post.content);
   };
 
-  // Filter posts by title
-  const filteredPosts = posts.filter(post =>
-    post.title.toLowerCase().includes(filter.toLowerCase())
-  );
-
   return (
     <div className="p-6 max-w-xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">📌 My Blog</h1>
@@ -111,7 +116,7 @@ const App = () => {
         )}
       </form>
       {/* Posts */}
-  <Postlist posts={filteredPosts} filter={filter} onDelete={confirmDelete} onEdit={handleEdit} />
+      <Postlist posts={posts} filter={filter} onDelete={confirmDelete} onEdit={handleEdit} />
       {/* Delete Confirmation Popup */}
       {showDelete && (
         <div className="fixed inset-0 flex items-center justify-center top-40  h-40 bg-opacity-80 z-50">
